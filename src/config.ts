@@ -20,7 +20,11 @@ const configSchema = z
     smtpPort: z.coerce.number().int().positive(),
     smtpUser: z.string().min(1),
     smtpPass: z.string().min(1),
-    smtpSecure: z.coerce.boolean().default(true),
+    // If not set, auto-detect: port 465 = true (implicit TLS), others = false (STARTTLS)
+    smtpSecure: z
+      .enum(["true", "false", ""])
+      .optional()
+      .transform((val) => (val === "true" ? true : val === "false" ? false : undefined)),
 
     // Email addresses
     emailFrom: z.string().email(),

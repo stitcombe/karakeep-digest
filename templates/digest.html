@@ -162,7 +162,7 @@
       <div class="section-title"><span class="emoji">&#128204;</span>Quick Scan</div>
       {{#each quickScan}}
       <div class="item">
-        <div class="item-title"><a href="{{url}}">{{title}}</a></div>
+        <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
         <div class="item-meta">{{source}} &middot; {{readTime}} min read</div>
         <div class="item-summary">{{aiSummary}}</div>
         <div class="item-why">{{whyItMatters}}</div>
@@ -177,7 +177,7 @@
       <p class="section-subtitle">Saved 30+ days ago, still unread</p>
       {{#each buriedTreasure}}
       <div class="item">
-        <div class="item-title"><a href="{{url}}">{{title}}</a></div>
+        <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
         <div class="item-meta">Saved {{daysAgo}} days ago</div>
         <div class="item-summary">{{aiSummary}}</div>
       </div>
@@ -190,7 +190,7 @@
       <div class="section-title"><span class="emoji">&#128197;</span>This Month Last Year</div>
       {{#each thisMonthLastYear}}
       <div class="item">
-        <div class="item-title"><a href="{{url}}">{{title}}</a></div>
+        <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
         <div class="item-summary">{{aiSummary}}</div>
       </div>
       {{/each}}
@@ -211,7 +211,7 @@
       </div>
       <ul class="tag-list">
         {{#each tagRoundup.bookmarks}}
-        <li><a href="{{url}}">{{title}}</a></li>
+        <li><a href="{{karakeepLink id}}">{{title}}</a></li>
         {{/each}}
       </ul>
     </div>
@@ -221,7 +221,7 @@
     <div class="section">
       <div class="section-title"><span class="emoji">&#127922;</span>Random Pick</div>
       <div class="item">
-        <div class="item-title"><a href="{{randomPick.url}}">{{randomPick.title}}</a></div>
+        <div class="item-title"><a href="{{karakeepLink randomPick.id}}">{{randomPick.title}}</a></div>
         <div class="item-meta">{{randomPick.source}}</div>
         <div class="item-summary">{{randomPick.aiSummary}}</div>
         <div class="item-why">{{randomPick.whyItMatters}}</div>

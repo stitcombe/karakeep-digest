@@ -27,7 +27,22 @@ function formatDate(date: Date): string {
 function loadTemplate(): HandlebarsTemplateDelegate {
   const templatePath = join(TEMPLATES_DIR, "digest.html");
   const templateSource = readFileSync(templatePath, "utf-8");
+
+  // Register helper to generate Karakeep deep link URLs
+  const baseUrl = config.karakeepPublicUrl || config.karakeepUrl;
+  Handlebars.registerHelper("karakeepLink", (bookmarkId: string) => {
+    return `${baseUrl}/dashboard/preview/${bookmarkId}`;
+  });
+
   return Handlebars.compile(templateSource);
+}
+
+/**
+ * Generate Karakeep deep link URL for a bookmark
+ */
+function getKarakeepLink(bookmarkId: string): string {
+  const baseUrl = config.karakeepPublicUrl || config.karakeepUrl;
+  return `${baseUrl}/dashboard/preview/${bookmarkId}`;
 }
 
 /**
@@ -47,7 +62,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("-".repeat(20));
     for (const item of digest.quickScan) {
       lines.push(`* ${item.title}`);
-      lines.push(`  ${item.url}`);
+      lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push(`  -> ${item.whyItMatters}`);
       lines.push("");
@@ -60,7 +75,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("-".repeat(20));
     for (const item of digest.buriedTreasure) {
       lines.push(`* ${item.title} (${item.daysAgo} days ago)`);
-      lines.push(`  ${item.url}`);
+      lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
     }
@@ -72,7 +87,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("-".repeat(20));
     for (const item of digest.thisMonthLastYear) {
       lines.push(`* ${item.title}`);
-      lines.push(`  ${item.url}`);
+      lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
     }
@@ -93,7 +108,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("");
     lines.push("Articles:");
     for (const item of digest.tagRoundup.bookmarks) {
-      lines.push(`  * ${item.title} - ${item.url}`);
+      lines.push(`  * ${item.title} - ${getKarakeepLink(item.id)}`);
     }
     lines.push("");
   }
@@ -102,7 +117,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("RANDOM PICK");
     lines.push("-".repeat(20));
     lines.push(`* ${digest.randomPick.title}`);
-    lines.push(`  ${digest.randomPick.url}`);
+    lines.push(`  ${getKarakeepLink(digest.randomPick.id)}`);
     lines.push(`  ${digest.randomPick.aiSummary}`);
     lines.push(`  -> ${digest.randomPick.whyItMatters}`);
     lines.push("");

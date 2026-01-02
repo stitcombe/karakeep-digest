@@ -69,29 +69,35 @@ function buildTagFrequencyMap(
 }
 
 /**
- * Find the most popular tag with at least MIN_TAG_ITEMS bookmarks
+ * Find a random qualifying tag with at least MIN_TAG_ITEMS bookmarks
+ * Randomly selects from all qualifying tags to provide variety across digests
  */
 function findTopTag(
   tagMap: Map<string, Bookmark[]>,
   usedIds: Set<string>
 ): { tag: string; bookmarks: Bookmark[] } | null {
-  let topTag: { tag: string; bookmarks: Bookmark[] } | null = null;
+  // Collect all qualifying tags (those with enough available bookmarks)
+  const qualifyingTags: { tag: string; bookmarks: Bookmark[] }[] = [];
 
   for (const [tag, bookmarks] of tagMap) {
     // Filter out already-used bookmarks
     const available = bookmarks.filter((b) => !usedIds.has(b.id));
 
     if (available.length >= MIN_TAG_ITEMS) {
-      if (!topTag || available.length > topTag.bookmarks.length) {
-        topTag = {
-          tag,
-          bookmarks: available.slice(0, MAX_ITEMS_PER_SECTION),
-        };
-      }
+      qualifyingTags.push({
+        tag,
+        bookmarks: available.slice(0, MAX_ITEMS_PER_SECTION),
+      });
     }
   }
 
-  return topTag;
+  if (qualifyingTags.length === 0) {
+    return null;
+  }
+
+  // Randomly select from qualifying tags
+  const randomIndex = Math.floor(Math.random() * qualifyingTags.length);
+  return qualifyingTags[randomIndex];
 }
 
 /**

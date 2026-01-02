@@ -5,7 +5,7 @@ Content: {{CONTENT}}
 
 Format your response as valid JSON with exactly this structure:
 {
-  "summary": "One sentence capturing the core insight, max 25 words",
+  "summary": "2-3 sentences capturing the core insight, max 50 words",
   "whyItMatters": "One sentence on relevance or potential action, max 20 words"
 }
 

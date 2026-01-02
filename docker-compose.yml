@@ -3,9 +3,12 @@ services:
     build: .
     env_file: .env
     environment:
-      - RUN_MODE=daemon
+      - RUN_MODE=${RUN_MODE:-cli}
       - CRON_SCHEDULE=0 8 * * 0  # Sunday at 8am
-    restart: unless-stopped
+    # Only restart on failure (non-zero exit), not on success
+    # For CLI mode: container exits after one run
+    # For daemon mode: container stays running with cron
+    restart: on-failure
 
   # Optional: Local LLM with Ollama
   # Uncomment to use local AI instead of Anthropic

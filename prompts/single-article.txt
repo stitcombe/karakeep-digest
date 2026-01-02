@@ -1,0 +1,13 @@
+Summarize this article in the style of the TLDR newsletter.
+
+Title: {{TITLE}}
+Content: {{CONTENT}}
+
+Format your response as valid JSON with exactly this structure:
+{
+  "summary": "One sentence capturing the core insight, max 25 words",
+  "whyItMatters": "One sentence on relevance or potential action, max 20 words"
+}
+
+Be direct, no fluff. Write for a busy technical reader.
+Return ONLY the JSON object, no additional text or markdown.

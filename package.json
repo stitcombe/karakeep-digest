@@ -1,0 +1,41 @@
+{
+  "name": "karakeep-digest",
+  "version": "1.0.0",
+  "description": "Weekly AI-powered email digest of your saved bookmarks",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "karakeep",
+    "digest",
+    "bookmarks",
+    "email",
+    "ai",
+    "summary"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "dotenv": "^16.4.5",
+    "handlebars": "^4.7.8",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^6.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -30,7 +30,8 @@ function calculatePriorityScore(bookmark: Bookmark, now: Date): number {
   }
 
   // Boost if has full content (more to summarize)
-  const contentText = bookmark.content?.htmlContent || bookmark.content?.text || "";
+  const contentText =
+    bookmark.content?.htmlContent || bookmark.content?.text || "";
   if (contentText.length > 500) {
     score += 5;
   }
@@ -220,8 +221,8 @@ export function estimateReadTime(content?: string): number {
     .filter((word) => word.length > 0);
   const wordCount = words.length;
 
-  // Average reading speed: 200 words per minute
-  const rawMinutes = wordCount / 200;
+  // Average reading speed: 238 words per minute
+  const rawMinutes = wordCount / 238;
   const minutes = Math.ceil(rawMinutes);
   const clampedMinutes = Math.max(1, Math.min(minutes, 90));
 

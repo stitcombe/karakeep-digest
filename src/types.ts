@@ -67,7 +67,6 @@ export interface ScoredBookmark extends Bookmark {
  */
 export interface SummarizedBookmark extends Bookmark {
   aiSummary: string;
-  whyItMatters: string;
   daysAgo: number;
   readTime: number;
 }
@@ -89,7 +88,7 @@ export interface TagRoundup {
  * Complete digest sections structure
  */
 export interface DigestSections {
-  quickScan: Bookmark[];
+  recentlySaved: Bookmark[];
   buriedTreasure: Bookmark[];
   thisMonthLastYear: Bookmark[];
   tagRoundup: {
@@ -97,6 +96,7 @@ export interface DigestSections {
     bookmarks: Bookmark[];
   } | null;
   randomPick: Bookmark | null;
+  fromTheArchives: Bookmark | null;
   stats: {
     totalUnread: number;
     generatedAt: Date;
@@ -107,11 +107,12 @@ export interface DigestSections {
  * Summarized digest ready for email rendering
  */
 export interface SummarizedDigest {
-  quickScan: SummarizedBookmark[];
+  recentlySaved: SummarizedBookmark[];
   buriedTreasure: SummarizedBookmark[];
   thisMonthLastYear: SummarizedBookmark[];
   tagRoundup: TagRoundup | null;
   randomPick: SummarizedBookmark | null;
+  fromTheArchives: SummarizedBookmark | null;
   stats: {
     totalUnread: number;
     generatedAt: Date;
@@ -130,7 +131,6 @@ export interface LLMProvider {
  */
 export interface ArticleSummaryResponse {
   summary: string;
-  whyItMatters: string;
 }
 
 /**

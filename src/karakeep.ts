@@ -193,3 +193,10 @@ export async function fetchThisMonthLastYear(): Promise<Bookmark[]> {
     return bookmark.createdAt >= start && bookmark.createdAt <= end;
   });
 }
+
+/**
+ * Fetch archived bookmarks for "From the Archives" feature
+ */
+export async function fetchArchivedBookmarks(): Promise<Bookmark[]> {
+  return fetchBookmarks({ archived: true });
+}

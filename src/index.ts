@@ -1,9 +1,9 @@
 import cron from "node-cron";
 
 import { config } from "./config.js";
-import { categorize } from "./categorizer.js";
+import { categorize, filterSufficientContent } from "./categorizer.js";
 import { renderDigest, sendDigest, verifySmtpConnection } from "./email.js";
-import { fetchBookmarks, fetchThisMonthLastYear } from "./karakeep.js";
+import { fetchArchivedBookmarks, fetchBookmarks, fetchThisMonthLastYear } from "./karakeep.js";
 import { summarizeSections } from "./summarizer.js";
 
 /**
@@ -18,6 +18,8 @@ async function generateAndSendDigest(): Promise<void> {
     console.log("Fetching unread bookmarks from Karakeep...");
     const bookmarks = await fetchBookmarks({ archived: false });
     console.log(`Fetched ${bookmarks.length} unread bookmarks`);
+    const validBookmarks = filterSufficientContent(bookmarks);
+    console.log(`  (${validBookmarks.length} with sufficient content for summarization)`);
 
     if (bookmarks.length === 0) {
       console.log("No unread bookmarks found. Skipping digest.");
@@ -30,13 +32,22 @@ async function generateAndSendDigest(): Promise<void> {
     console.log(
       `Found ${lastYearBookmarks.length} bookmarks from this month last year`
     );
+    const validLastYear = filterSufficientContent(lastYearBookmarks);
+    console.log(`  (${validLastYear.length} with sufficient content)`);
 
-    // 3. Categorize into digest sections
+    // 3. Fetch archived bookmarks for "From the Archives"
+    console.log("Fetching archived bookmarks...");
+    const archivedBookmarks = await fetchArchivedBookmarks();
+    console.log(`Found ${archivedBookmarks.length} archived bookmarks`);
+    const validArchived = filterSufficientContent(archivedBookmarks);
+    console.log(`  (${validArchived.length} with sufficient content)`);
+
+    // 4. Categorize into digest sections
     console.log("Categorizing bookmarks...");
-    const sections = categorize(bookmarks, lastYearBookmarks);
+    const sections = categorize(bookmarks, lastYearBookmarks, archivedBookmarks);
 
     console.log("Sections created:");
-    console.log(`  - Quick Scan: ${sections.quickScan.length} items`);
+    console.log(`  - Recently Saved: ${sections.recentlySaved.length} items`);
     console.log(`  - Buried Treasure: ${sections.buriedTreasure.length} items`);
     console.log(
       `  - This Month Last Year: ${sections.thisMonthLastYear.length} items`
@@ -45,15 +56,16 @@ async function generateAndSendDigest(): Promise<void> {
       `  - Tag Roundup: ${sections.tagRoundup ? `${sections.tagRoundup.bookmarks.length} items (${sections.tagRoundup.tag})` : "none"}`
     );
     console.log(`  - Random Pick: ${sections.randomPick ? "yes" : "no"}`);
+    console.log(`  - From the Archives: ${sections.fromTheArchives ? "yes" : "no"}`);
 
-    // 4. Generate AI summaries for each section
+    // 5. Generate AI summaries for each section
     const summarized = await summarizeSections(sections);
 
-    // 5. Render email
+    // 6. Render email
     console.log("Rendering email...");
     const { html, plainText } = renderDigest(summarized);
 
-    // 6. Send email
+    // 7. Send email
     const messageId = await sendDigest(html, plainText);
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);

@@ -2,8 +2,13 @@ import { getPriorityTags } from "./config.js";
 import type { Bookmark, DigestSections, ScoredBookmark } from "./types.js";
 
 const BURIED_TREASURE_DAYS = 30;
+const BURIED_TREASURE_COUNT = 3;
+const THIS_MONTH_LAST_YEAR_COUNT = 3;
 const MAX_ITEMS_PER_SECTION = 5;
 const MIN_TAG_ITEMS = 3;
+const MIN_CONTENT_LENGTH = 200;
+const RECENTLY_SAVED_COUNT = 3;
+const RECENTLY_SAVED_DAYS = 30;
 
 /**
  * Calculate priority score for a bookmark
@@ -105,40 +110,44 @@ function findTopTag(
  */
 export function categorize(
   bookmarks: Bookmark[],
-  lastYearBookmarks: Bookmark[] = []
+  lastYearBookmarks: Bookmark[] = [],
+  archivedBookmarks: Bookmark[] = []
 ): DigestSections {
   const now = new Date();
   const usedIds = new Set<string>();
 
-  // Score and sort all bookmarks
-  const scored = getScoreBookmarks(bookmarks, now);
+  // Filter out bookmarks without sufficient content
+  const validBookmarks = filterSufficientContent(bookmarks);
+  const validLastYear = filterSufficientContent(lastYearBookmarks);
+  const validArchived = filterSufficientContent(archivedBookmarks);
 
-  // Quick Scan: Top 5 by priority score
-  const quickScan = scored.slice(0, MAX_ITEMS_PER_SECTION).map((b) => {
-    usedIds.add(b.id);
-    // Remove score property for clean Bookmark type
-    const { score: _score, ...bookmark } = b;
-    return bookmark;
-  });
+  // Recently Saved: 3 random unread from last 30 days
+  const recentlySaved = getRecentlySaved(
+    validBookmarks,
+    RECENTLY_SAVED_DAYS,
+    RECENTLY_SAVED_COUNT,
+    now
+  );
+  recentlySaved.forEach((b) => usedIds.add(b.id));
 
   // Buried Treasure: 30+ days old, still unread
   const thirtyDaysAgo = new Date(
     now.getTime() - BURIED_TREASURE_DAYS * 24 * 60 * 60 * 1000
   );
 
-  const buriedTreasure = bookmarks
+  const buriedTreasure = validBookmarks
     .filter((b) => !usedIds.has(b.id) && b.createdAt < thirtyDaysAgo)
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) // Oldest first
-    .slice(0, MAX_ITEMS_PER_SECTION);
+    .slice(0, BURIED_TREASURE_COUNT);
 
   buriedTreasure.forEach((b) => usedIds.add(b.id));
 
   // This Month Last Year
-  const thisMonthLastYear = lastYearBookmarks.slice(0, MAX_ITEMS_PER_SECTION);
+  const thisMonthLastYear = validLastYear.slice(0, THIS_MONTH_LAST_YEAR_COUNT);
   thisMonthLastYear.forEach((b) => usedIds.add(b.id));
 
   // Tag Roundup: Most popular tag with 3+ items
-  const tagMap = buildTagFrequencyMap(bookmarks);
+  const tagMap = buildTagFrequencyMap(validBookmarks);
   const tagRoundup = findTopTag(tagMap, usedIds);
 
   if (tagRoundup) {
@@ -146,20 +155,27 @@ export function categorize(
   }
 
   // Random Pick: Single random selection from remaining
-  const remaining = bookmarks.filter((b) => !usedIds.has(b.id));
+  const remaining = validBookmarks.filter((b) => !usedIds.has(b.id));
   const randomPick =
     remaining.length > 0
       ? remaining[Math.floor(Math.random() * remaining.length)]
       : null;
 
+  // From the Archives: Single random selection from archived items
+  const fromTheArchives =
+    validArchived.length > 0
+      ? validArchived[Math.floor(Math.random() * validArchived.length)]
+      : null;
+
   return {
-    quickScan,
+    recentlySaved,
     buriedTreasure,
     thisMonthLastYear,
     tagRoundup,
     randomPick,
+    fromTheArchives,
     stats: {
-      totalUnread: bookmarks.length,
+      totalUnread: validBookmarks.length,
       generatedAt: now,
     },
   };
@@ -187,4 +203,32 @@ export function estimateReadTime(content?: string): number {
   const minutes = Math.ceil(words / 200);
 
   return Math.max(1, Math.min(minutes, 30)); // Clamp between 1-30 minutes
+}
+
+/**
+ * Filter bookmarks with insufficient content for summarization
+ * Checks both content and summary fields since the LLM uses a fallback chain
+ */
+export function filterSufficientContent(bookmarks: Bookmark[]): Bookmark[] {
+  return bookmarks.filter((b) => {
+    const contentLength = (b.content || "").length;
+    const summaryLength = (b.summary || "").length;
+    // Accept if either content or summary has sufficient length
+    return contentLength >= MIN_CONTENT_LENGTH || summaryLength >= MIN_CONTENT_LENGTH;
+  });
+}
+
+/**
+ * Get random articles from the last N days
+ */
+function getRecentlySaved(
+  bookmarks: Bookmark[],
+  days: number,
+  count: number,
+  now: Date
+): Bookmark[] {
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const recent = bookmarks.filter((b) => b.createdAt >= cutoff);
+  const shuffled = [...recent].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 }

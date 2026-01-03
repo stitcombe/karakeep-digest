@@ -2,7 +2,7 @@ services:
   karakeep-digest:
     build: .
     env_file: .env
-    restart: on-failure
+    restart: no
 
   # Optional: Local LLM with Ollama
   # Uncomment to use local AI instead of Anthropic

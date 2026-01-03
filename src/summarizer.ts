@@ -169,7 +169,6 @@ async function summarizeArticle(
     // Fallback to existing summary or title
     return {
       summary: bookmark.summary || bookmark.title,
-      whyItMatters: "Worth a read when you have time.",
     };
   }
 }
@@ -226,7 +225,6 @@ async function toSummarizedBookmark(
   return {
     ...bookmark,
     aiSummary: summary.summary,
-    whyItMatters: summary.whyItMatters,
     daysAgo: daysAgo(bookmark.createdAt),
     readTime: estimateReadTime(bookmark.content),
   };
@@ -270,10 +268,10 @@ export async function summarizeSections(
   console.log("Generating AI summaries...");
   const provider = createProvider();
 
-  // Summarize Quick Scan items
-  console.log(`  Summarizing ${sections.quickScan.length} Quick Scan items`);
-  const quickScan = await mapWithConcurrency(
-    sections.quickScan,
+  // Summarize Recently Saved items
+  console.log(`  Summarizing ${sections.recentlySaved.length} Recently Saved items`);
+  const recentlySaved = await mapWithConcurrency(
+    sections.recentlySaved,
     (b) => toSummarizedBookmark(provider, b),
     MAX_CONCURRENT
   );
@@ -331,14 +329,22 @@ export async function summarizeSections(
     randomPick = await toSummarizedBookmark(provider, sections.randomPick);
   }
 
+  // Summarize From the Archives
+  let fromTheArchives: SummarizedBookmark | null = null;
+  if (sections.fromTheArchives) {
+    console.log("  Summarizing archive pick");
+    fromTheArchives = await toSummarizedBookmark(provider, sections.fromTheArchives);
+  }
+
   console.log("AI summarization complete");
 
   return {
-    quickScan,
+    recentlySaved,
     buriedTreasure,
     thisMonthLastYear,
     tagRoundup,
     randomPick,
+    fromTheArchives,
     stats: sections.stats,
   };
 }

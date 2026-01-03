@@ -80,12 +80,6 @@
     .item-summary {
       color: #333;
       font-size: 14px;
-      margin-bottom: 4px;
-    }
-    .item-why {
-      color: #666;
-      font-size: 13px;
-      font-style: italic;
     }
     .synthesis {
       background-color: #f9f9f9;
@@ -127,6 +121,18 @@
     .tag-list a:hover {
       text-decoration: underline;
     }
+    .item-meta-inline {
+      color: #888;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .item-meta-inline a {
+      color: #888;
+      text-decoration: none;
+    }
+    .item-meta-inline a:hover {
+      text-decoration: underline;
+    }
     .footer {
       border-top: 1px solid #eee;
       margin-top: 32px;
@@ -157,15 +163,14 @@
     <h1>Your Weekly Digest</h1>
     <p class="header-meta">{{totalUnread}} unread items &middot; {{formattedDate}}</p>
 
-    {{#if quickScan.length}}
+    {{#if recentlySaved.length}}
     <div class="section">
-      <div class="section-title"><span class="emoji">&#128204;</span>Quick Scan</div>
-      {{#each quickScan}}
+      <div class="section-title"><span class="emoji">&#128278;</span>Recently Saved</div>
+      {{#each recentlySaved}}
       <div class="item">
         <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
-        <div class="item-meta">{{source}} &middot; {{readTime}} min read</div>
+        <div class="item-meta">{{readTime}} min read &middot; Saved {{daysAgo}} days ago &middot; <a href="{{url}}">{{source}}</a></div>
         <div class="item-summary">{{aiSummary}}</div>
-        <div class="item-why">{{whyItMatters}}</div>
       </div>
       {{/each}}
     </div>
@@ -178,7 +183,7 @@
       {{#each buriedTreasure}}
       <div class="item">
         <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
-        <div class="item-meta">Saved {{daysAgo}} days ago</div>
+        <div class="item-meta">{{readTime}} min read &middot; Saved {{daysAgo}} days ago &middot; <a href="{{url}}">{{source}}</a></div>
         <div class="item-summary">{{aiSummary}}</div>
       </div>
       {{/each}}
@@ -191,6 +196,7 @@
       {{#each thisMonthLastYear}}
       <div class="item">
         <div class="item-title"><a href="{{karakeepLink id}}">{{title}}</a></div>
+        <div class="item-meta">{{readTime}} min read &middot; Saved {{daysAgo}} days ago &middot; <a href="{{url}}">{{source}}</a></div>
         <div class="item-summary">{{aiSummary}}</div>
       </div>
       {{/each}}
@@ -211,7 +217,7 @@
       </div>
       <ul class="tag-list">
         {{#each tagRoundup.bookmarks}}
-        <li><a href="{{karakeepLink id}}">{{title}}</a></li>
+        <li><a href="{{karakeepLink id}}">{{title}}</a> <span class="item-meta-inline">{{readTime}} min &middot; {{daysAgo}}d ago &middot; <a href="{{url}}">{{source}}</a></span></li>
         {{/each}}
       </ul>
     </div>
@@ -222,9 +228,20 @@
       <div class="section-title"><span class="emoji">&#127922;</span>Random Pick</div>
       <div class="item">
         <div class="item-title"><a href="{{karakeepLink randomPick.id}}">{{randomPick.title}}</a></div>
-        <div class="item-meta">{{randomPick.source}}</div>
+        <div class="item-meta">{{randomPick.readTime}} min read &middot; Saved {{randomPick.daysAgo}} days ago &middot; <a href="{{randomPick.url}}">{{randomPick.source}}</a></div>
         <div class="item-summary">{{randomPick.aiSummary}}</div>
-        <div class="item-why">{{randomPick.whyItMatters}}</div>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if fromTheArchives}}
+    <div class="section">
+      <div class="section-title"><span class="emoji">&#128218;</span>From the Archives</div>
+      <p class="section-subtitle">A forgotten gem from your archived collection</p>
+      <div class="item">
+        <div class="item-title"><a href="{{karakeepLink fromTheArchives.id}}">{{fromTheArchives.title}}</a></div>
+        <div class="item-meta">{{fromTheArchives.readTime}} min read &middot; Saved {{fromTheArchives.daysAgo}} days ago &middot; <a href="{{fromTheArchives.url}}">{{fromTheArchives.source}}</a></div>
+        <div class="item-summary">{{fromTheArchives.aiSummary}}</div>
       </div>
     </div>
     {{/if}}

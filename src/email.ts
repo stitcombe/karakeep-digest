@@ -57,14 +57,14 @@ function generatePlainText(digest: SummarizedDigest): string {
   lines.push("=".repeat(50));
   lines.push("");
 
-  if (digest.quickScan.length > 0) {
-    lines.push("QUICK SCAN");
+  if (digest.recentlySaved.length > 0) {
+    lines.push("RECENTLY SAVED");
     lines.push("-".repeat(20));
-    for (const item of digest.quickScan) {
+    for (const item of digest.recentlySaved) {
       lines.push(`* ${item.title}`);
+      lines.push(`  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
-      lines.push(`  -> ${item.whyItMatters}`);
       lines.push("");
     }
     lines.push("");
@@ -74,7 +74,8 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("BURIED TREASURE (30+ days old)");
     lines.push("-".repeat(20));
     for (const item of digest.buriedTreasure) {
-      lines.push(`* ${item.title} (${item.daysAgo} days ago)`);
+      lines.push(`* ${item.title}`);
+      lines.push(`  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
@@ -87,6 +88,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("-".repeat(20));
     for (const item of digest.thisMonthLastYear) {
       lines.push(`* ${item.title}`);
+      lines.push(`  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
@@ -108,7 +110,9 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("");
     lines.push("Articles:");
     for (const item of digest.tagRoundup.bookmarks) {
-      lines.push(`  * ${item.title} - ${getKarakeepLink(item.id)}`);
+      lines.push(`  * ${item.title}`);
+      lines.push(`    ${item.readTime} min | ${item.daysAgo}d ago | ${item.source}`);
+      lines.push(`    ${getKarakeepLink(item.id)}`);
     }
     lines.push("");
   }
@@ -117,9 +121,19 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("RANDOM PICK");
     lines.push("-".repeat(20));
     lines.push(`* ${digest.randomPick.title}`);
+    lines.push(`  ${digest.randomPick.readTime} min read | Saved ${digest.randomPick.daysAgo} days ago | ${digest.randomPick.source}`);
     lines.push(`  ${getKarakeepLink(digest.randomPick.id)}`);
     lines.push(`  ${digest.randomPick.aiSummary}`);
-    lines.push(`  -> ${digest.randomPick.whyItMatters}`);
+    lines.push("");
+  }
+
+  if (digest.fromTheArchives) {
+    lines.push("FROM THE ARCHIVES");
+    lines.push("-".repeat(20));
+    lines.push(`* ${digest.fromTheArchives.title}`);
+    lines.push(`  ${digest.fromTheArchives.readTime} min read | Saved ${digest.fromTheArchives.daysAgo} days ago | ${digest.fromTheArchives.source}`);
+    lines.push(`  ${getKarakeepLink(digest.fromTheArchives.id)}`);
+    lines.push(`  ${digest.fromTheArchives.aiSummary}`);
     lines.push("");
   }
 

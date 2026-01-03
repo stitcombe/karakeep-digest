@@ -4,12 +4,16 @@
 export interface KarakeepBookmark {
   id: string;
   createdAt: string;
-  title: string | null;
+  modifiedAt: string | null;
+  title?: string;
   archived: boolean;
   favourited: boolean;
   taggingStatus: string | null;
-  note: string | null;
-  summary: string | null;
+  summarizationStatus: string | null;
+  note?: string;
+  summary?: string;
+  source?: string;
+  userId: string;
   content: {
     type: string;
     url?: string;
@@ -17,9 +21,11 @@ export interface KarakeepBookmark {
     description?: string;
     imageUrl?: string;
     favicon?: string;
-    htmlContent?: string;
+    htmlContent?: string | null;
     crawledAt?: string;
     text?: string;
+    sourceUrl?: string;
+    contentAssetId?: string | null;
   };
   tags: Array<{
     id: string;
@@ -29,6 +35,7 @@ export interface KarakeepBookmark {
   assets: Array<{
     id: string;
     assetType: string;
+    fileName: string | null;
   }>;
 }
 
@@ -46,13 +53,37 @@ export interface KarakeepBookmarksResponse {
 export interface Bookmark {
   id: string;
   url: string;
-  title: string;
-  content?: string;
+  title?: string;
   summary?: string;
-  tags: string[];
   createdAt: Date;
   archived: boolean;
-  source: string;
+  favourited: boolean;
+  source?: string;
+  note?: string;
+  userId: string;
+  content: {
+    type: string;
+    url?: string;
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+    favicon?: string;
+    htmlContent?: string | null;
+    crawledAt?: string;
+    text?: string;
+    sourceUrl?: string;
+    contentAssetId?: string | null;
+  };
+  tags: Array<{
+    id: string;
+    name: string;
+    attachedBy: string;
+  }>;
+  assets: Array<{
+    id: string;
+    assetType: string;
+    fileName: string | null;
+  }>;
 }
 
 /**

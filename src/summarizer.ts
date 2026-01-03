@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 
 import { config, getLLMProvider } from "./config.js";
 import { daysAgo, estimateReadTime } from "./categorizer.js";
+import { fetchBookmarkContent } from "./karakeep.js";
 import type {
   ArticleSummaryResponse,
   Bookmark,
@@ -45,7 +46,7 @@ class AnthropicProvider implements LLMProvider {
 
   async complete(prompt: string, maxTokens: number): Promise<string> {
     const response = await this.client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-haiku-4-5",
       max_tokens: maxTokens,
       messages: [{ role: "user", content: prompt }],
     });
@@ -149,12 +150,13 @@ async function summarizeArticle(
   bookmark: Bookmark
 ): Promise<ArticleSummaryResponse> {
   const promptTemplate = loadPrompt("single-article");
+  const contentText = bookmark.content?.htmlContent || bookmark.content?.text || "";
   const content = truncateContent(
-    bookmark.content || bookmark.summary || bookmark.title
+    contentText || bookmark.summary || bookmark.title || ""
   );
 
   const prompt = promptTemplate
-    .replace("{{TITLE}}", bookmark.title)
+    .replace("{{TITLE}}", bookmark.title || "Untitled")
     .replace("{{CONTENT}}", content);
 
   try {
@@ -168,7 +170,7 @@ async function summarizeArticle(
 
     // Fallback to existing summary or title
     return {
-      summary: bookmark.summary || bookmark.title,
+      summary: bookmark.summary || bookmark.title || "No summary available",
     };
   }
 }
@@ -184,10 +186,10 @@ async function synthesizeCluster(
   const promptTemplate = loadPrompt("topic-cluster");
 
   const articles = bookmarks
-    .map(
-      (b) =>
-        `## ${b.title}\n${truncateContent(b.content || b.summary || "")}`
-    )
+    .map((b) => {
+      const contentText = b.content?.htmlContent || b.content?.text || "";
+      return `## ${b.title || "Untitled"}\n${truncateContent(contentText || b.summary || "")}`;
+    })
     .join("\n\n---\n\n");
 
   const prompt = promptTemplate
@@ -207,8 +209,8 @@ async function synthesizeCluster(
     // Fallback synthesis
     return {
       overview: `A collection of ${bookmarks.length} articles about ${tag}.`,
-      keyInsights: bookmarks.slice(0, 3).map((b) => b.title),
-      standout: `Check out "${bookmarks[0]?.title}" first.`,
+      keyInsights: bookmarks.slice(0, 3).map((b) => b.title || "Untitled"),
+      standout: `Check out "${bookmarks[0]?.title || "the first article"}" first.`,
     };
   }
 }
@@ -222,11 +224,18 @@ async function toSummarizedBookmark(
 ): Promise<SummarizedBookmark> {
   const summary = await summarizeArticle(provider, bookmark);
 
+  // Fetch actual content from Karakeep asset for accurate read time
+  const fetchedContent = await fetchBookmarkContent(bookmark);
+  const rawContent = fetchedContent || bookmark.content?.htmlContent || bookmark.content?.text;
+
+  // Only calculate read time if we have content, otherwise set to 0 (will be hidden in template)
+  const readTime = rawContent ? estimateReadTime(rawContent) : 0;
+
   return {
     ...bookmark,
     aiSummary: summary.summary,
     daysAgo: daysAgo(bookmark.createdAt),
-    readTime: estimateReadTime(bookmark.content),
+    readTime,
   };
 }
 
@@ -269,7 +278,9 @@ export async function summarizeSections(
   const provider = createProvider();
 
   // Summarize Recently Saved items
-  console.log(`  Summarizing ${sections.recentlySaved.length} Recently Saved items`);
+  console.log(
+    `  Summarizing ${sections.recentlySaved.length} Recently Saved items`
+  );
   const recentlySaved = await mapWithConcurrency(
     sections.recentlySaved,
     (b) => toSummarizedBookmark(provider, b),
@@ -333,7 +344,10 @@ export async function summarizeSections(
   let fromTheArchives: SummarizedBookmark | null = null;
   if (sections.fromTheArchives) {
     console.log("  Summarizing archive pick");
-    fromTheArchives = await toSummarizedBookmark(provider, sections.fromTheArchives);
+    fromTheArchives = await toSummarizedBookmark(
+      provider,
+      sections.fromTheArchives
+    );
   }
 
   console.log("AI summarization complete");

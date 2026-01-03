@@ -24,7 +24,9 @@ const configSchema = z
     smtpSecure: z
       .enum(["true", "false", ""])
       .optional()
-      .transform((val) => (val === "true" ? true : val === "false" ? false : undefined)),
+      .transform((val) =>
+        val === "true" ? true : val === "false" ? false : undefined
+      ),
 
     // Email addresses
     emailFrom: z.string().email(),
@@ -35,8 +37,11 @@ const configSchema = z
     cronSchedule: z.string().default("0 8 * * 0"), // Sunday at 8am
     runMode: z.enum(["cli", "daemon"]).default("cli"),
 
-    // Optional: Karakeep URL for email footer
-    karakeepPublicUrl: z.string().url().optional(),
+    // Debug
+    debugLogs: z
+      .enum(["true", "false", ""])
+      .default("")
+      .transform((val) => val === "true"),
   })
   .refine((data) => data.anthropicApiKey || data.ollamaUrl, {
     message: "Either ANTHROPIC_API_KEY or OLLAMA_URL must be provided",
@@ -59,7 +64,7 @@ function loadConfig() {
     priorityTags: process.env.PRIORITY_TAGS,
     cronSchedule: process.env.CRON_SCHEDULE,
     runMode: process.env.RUN_MODE,
-    karakeepPublicUrl: process.env.KARAKEEP_PUBLIC_URL,
+    debugLogs: process.env.DEBUG_LOGS,
   });
 
   if (!result.success) {
@@ -100,4 +105,11 @@ export function getEmailRecipients(): string[] {
     .split(",")
     .map((e) => e.trim())
     .filter(Boolean);
+}
+
+/**
+ * Check if debug logging is enabled
+ */
+export function isDebugEnabled(): boolean {
+  return config.debugLogs;
 }

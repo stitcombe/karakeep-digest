@@ -32,12 +32,16 @@ function transformBookmark(raw: KarakeepBookmark): Bookmark {
     id: raw.id,
     url,
     title,
-    content: raw.content?.htmlContent || raw.content?.text,
+    content: raw.content,
     summary: raw.summary || raw.content?.description,
-    tags: raw.tags.map((t) => t.name),
+    tags: raw.tags,
     createdAt: new Date(raw.createdAt),
     archived: raw.archived,
+    favourited: raw.favourited,
     source: extractDomain(url),
+    note: raw.note,
+    userId: raw.userId,
+    assets: raw.assets,
   };
 }
 
@@ -106,6 +110,42 @@ function sleep(ms: number): Promise<void> {
 export interface FetchBookmarksOptions {
   archived?: boolean;
   limit?: number;
+}
+
+/**
+ * Fetch the content asset for a bookmark (the actual crawled HTML/text)
+ * Returns the content as a string, or null if not available
+ */
+export async function fetchBookmarkContent(bookmark: Bookmark): Promise<string | null> {
+  const assetId = bookmark.content?.contentAssetId;
+
+  // If htmlContent is already available, use it
+  if (bookmark.content?.htmlContent) {
+    return bookmark.content.htmlContent;
+  }
+
+  // If no asset ID, no content to fetch
+  if (!assetId) {
+    return null;
+  }
+
+  try {
+    const url = `${config.karakeepUrl}/api/v1/assets/${assetId}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${config.karakeepApiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    // The asset endpoint returns the raw content
+    return await response.text();
+  } catch {
+    return null;
+  }
 }
 
 /**

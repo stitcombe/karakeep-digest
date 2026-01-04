@@ -147,10 +147,16 @@ function parseJsonResponse<T>(response: string): T {
  */
 async function summarizeArticle(
   provider: LLMProvider,
-  bookmark: Bookmark
+  bookmark: Bookmark,
+  fetchedContent?: string | null
 ): Promise<ArticleSummaryResponse> {
   const promptTemplate = loadPrompt("single-article");
-  const contentText = bookmark.content?.htmlContent || bookmark.content?.text || "";
+  // Use fetched content first (full article), then fall back to inline content
+  const contentText =
+    fetchedContent ||
+    bookmark.content?.htmlContent ||
+    bookmark.content?.text ||
+    "";
   const content = truncateContent(
     contentText || bookmark.summary || bookmark.title || ""
   );
@@ -185,9 +191,16 @@ async function synthesizeCluster(
 ): Promise<ClusterSynthesisResponse> {
   const promptTemplate = loadPrompt("topic-cluster");
 
+  // Fetch content for all bookmarks
+  const contentResults = await Promise.all(
+    bookmarks.map((b) => fetchBookmarkContent(b))
+  );
+
   const articles = bookmarks
-    .map((b) => {
-      const contentText = b.content?.htmlContent || b.content?.text || "";
+    .map((b, index) => {
+      const fetchedContent = contentResults[index];
+      const contentText =
+        fetchedContent || b.content?.htmlContent || b.content?.text || "";
       return `## ${b.title || "Untitled"}\n${truncateContent(contentText || b.summary || "")}`;
     })
     .join("\n\n---\n\n");
@@ -222,11 +235,15 @@ async function toSummarizedBookmark(
   provider: LLMProvider,
   bookmark: Bookmark
 ): Promise<SummarizedBookmark> {
-  const summary = await summarizeArticle(provider, bookmark);
-
-  // Fetch actual content from Karakeep asset for accurate read time
+  // Fetch actual content from Karakeep asset first (for both summarization and read time)
   const fetchedContent = await fetchBookmarkContent(bookmark);
-  const rawContent = fetchedContent || bookmark.content?.htmlContent || bookmark.content?.text;
+  const rawContent =
+    fetchedContent ||
+    bookmark.content?.htmlContent ||
+    bookmark.content?.text;
+
+  // Generate summary using fetched content
+  const summary = await summarizeArticle(provider, bookmark, fetchedContent);
 
   // Only calculate read time if we have content, otherwise set to 0 (will be hidden in template)
   const readTime = rawContent ? estimateReadTime(rawContent) : 0;

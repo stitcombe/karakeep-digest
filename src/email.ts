@@ -51,7 +51,7 @@ function getKarakeepLink(bookmarkId: string): string {
 function generatePlainText(digest: SummarizedDigest): string {
   const lines: string[] = [];
 
-  lines.push("YOUR WEEKLY DIGEST");
+  lines.push("YOUR WEEKLY KARAKEEP DIGEST");
   lines.push(
     `${digest.stats.totalUnread} unread items - ${formatDate(
       digest.stats.generatedAt
@@ -62,12 +62,14 @@ function generatePlainText(digest: SummarizedDigest): string {
   lines.push("");
 
   if (digest.recentlySaved.length > 0) {
-    lines.push("RECENTLY SAVED");
+    lines.push("HOT OFF THE PRESS");
+    lines.push("Your latest finds from the past month");
     lines.push("-".repeat(20));
     for (const item of digest.recentlySaved) {
       lines.push(`* ${item.title}`);
+      const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
       lines.push(
-        `  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`
+        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
       );
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
@@ -77,12 +79,14 @@ function generatePlainText(digest: SummarizedDigest): string {
   }
 
   if (digest.buriedTreasure.length > 0) {
-    lines.push("BURIED TREASURE (30+ days old)");
+    lines.push("BURIED TREASURE");
+    lines.push("Saved 30+ days ago, still unread");
     lines.push("-".repeat(20));
     for (const item of digest.buriedTreasure) {
       lines.push(`* ${item.title}`);
+      const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
       lines.push(
-        `  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`
+        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
       );
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
@@ -92,12 +96,14 @@ function generatePlainText(digest: SummarizedDigest): string {
   }
 
   if (digest.thisMonthLastYear.length > 0) {
-    lines.push("THIS MONTH LAST YEAR");
+    lines.push("THROWBACK: ONE YEAR AGO");
+    lines.push("What you were reading this time last year");
     lines.push("-".repeat(20));
     for (const item of digest.thisMonthLastYear) {
       lines.push(`* ${item.title}`);
+      const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
       lines.push(
-        `  ${item.readTime} min read | Saved ${item.daysAgo} days ago | ${item.source}`
+        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
       );
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
@@ -121,8 +127,9 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("Articles:");
     for (const item of digest.tagRoundup.bookmarks) {
       lines.push(`  * ${item.title}`);
+      const readTimePart = item.readTime ? `${item.readTime} min | ` : "";
       lines.push(
-        `    ${item.readTime} min | ${item.daysAgo}d ago | ${item.source}`
+        `    ${readTimePart}${item.daysAgo}d ago | ${item.source}`
       );
       lines.push(`    ${getKarakeepLink(item.id)}`);
     }
@@ -133,8 +140,11 @@ function generatePlainText(digest: SummarizedDigest): string {
     lines.push("RANDOM PICK");
     lines.push("-".repeat(20));
     lines.push(`* ${digest.randomPick.title}`);
+    const readTimePart = digest.randomPick.readTime
+      ? `${digest.randomPick.readTime} min read | `
+      : "";
     lines.push(
-      `  ${digest.randomPick.readTime} min read | Saved ${digest.randomPick.daysAgo} days ago | ${digest.randomPick.source}`
+      `  ${readTimePart}Saved ${digest.randomPick.daysAgo} days ago | ${digest.randomPick.source}`
     );
     lines.push(`  ${getKarakeepLink(digest.randomPick.id)}`);
     lines.push(`  ${digest.randomPick.aiSummary}`);
@@ -143,10 +153,14 @@ function generatePlainText(digest: SummarizedDigest): string {
 
   if (digest.fromTheArchives) {
     lines.push("FROM THE ARCHIVES");
+    lines.push("A forgotten gem from your archived collection");
     lines.push("-".repeat(20));
     lines.push(`* ${digest.fromTheArchives.title}`);
+    const readTimePart = digest.fromTheArchives.readTime
+      ? `${digest.fromTheArchives.readTime} min read | `
+      : "";
     lines.push(
-      `  ${digest.fromTheArchives.readTime} min read | Saved ${digest.fromTheArchives.daysAgo} days ago | ${digest.fromTheArchives.source}`
+      `  ${readTimePart}Saved ${digest.fromTheArchives.daysAgo} days ago | ${digest.fromTheArchives.source}`
     );
     lines.push(`  ${getKarakeepLink(digest.fromTheArchives.id)}`);
     lines.push(`  ${digest.fromTheArchives.aiSummary}`);

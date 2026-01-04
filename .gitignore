@@ -37,3 +37,4 @@ temp/
 
 # claude
 .claude/
+!.claude/settings.local.json

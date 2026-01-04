@@ -1,0 +1,18 @@
+You have {{COUNT}} articles all tagged "{{TAG}}". Synthesize them into a single cohesive summary that captures the key themes and insights across all articles.
+
+Articles:
+{{ARTICLES}}
+
+Format your response as valid JSON with exactly this structure:
+{
+  "overview": "2-3 sentences synthesizing the common themes across all articles",
+  "keyInsights": [
+    "Insight 1 derived from multiple articles",
+    "Insight 2 derived from multiple articles",
+    "Insight 3 derived from multiple articles"
+  ],
+  "standout": "Which single article is most worth reading in full and why (one sentence)"
+}
+
+Be concise and actionable.
+Return ONLY the JSON object, no additional text or markdown.

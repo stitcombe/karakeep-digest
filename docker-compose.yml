@@ -1,0 +1,18 @@
+services:
+  karakeep-digest:
+    build: .
+    env_file: .env
+    restart: no
+
+  # Optional: Local LLM with Ollama
+  # Uncomment to use local AI instead of Anthropic
+  # ollama:
+  #   image: ollama/ollama
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+  #   profiles:
+  #     - local-llm
+# volumes:
+#   ollama_data:

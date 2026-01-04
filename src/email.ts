@@ -128,9 +128,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     for (const item of digest.tagRoundup.bookmarks) {
       lines.push(`  * ${item.title}`);
       const readTimePart = item.readTime ? `${item.readTime} min | ` : "";
-      lines.push(
-        `    ${readTimePart}${item.daysAgo}d ago | ${item.source}`
-      );
+      lines.push(`    ${readTimePart}${item.daysAgo}d ago | ${item.source}`);
       lines.push(`    ${getKarakeepLink(item.id)}`);
     }
     lines.push("");
@@ -238,7 +236,7 @@ export async function sendDigest(
   const info = await transport.sendMail({
     from: config.emailFrom,
     to: recipients.join(", "),
-    subject: `Your Weekly Digest - ${formatDate(new Date())}`,
+    subject: `Your Weekly Karakeep Digest - ${formatDate(new Date())}`,
     text: plainText,
     html,
   });

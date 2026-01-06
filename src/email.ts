@@ -1,8 +1,8 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import nodemailer from "nodemailer";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 
 import { config, getEmailRecipients } from "./config.js";
 import type { SummarizedDigest } from "./types.js";
@@ -52,11 +52,7 @@ function generatePlainText(digest: SummarizedDigest): string {
   const lines: string[] = [];
 
   lines.push("YOUR WEEKLY KARAKEEP DIGEST");
-  lines.push(
-    `${digest.stats.totalUnread} unread items - ${formatDate(
-      digest.stats.generatedAt
-    )}`
-  );
+  lines.push(`${digest.stats.totalUnread} unread items - ${formatDate(digest.stats.generatedAt)}`);
   lines.push("");
   lines.push("=".repeat(50));
   lines.push("");
@@ -68,9 +64,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     for (const item of digest.recentlySaved) {
       lines.push(`* ${item.title}`);
       const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
-      lines.push(
-        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
-      );
+      lines.push(`  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
@@ -85,9 +79,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     for (const item of digest.buriedTreasure) {
       lines.push(`* ${item.title}`);
       const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
-      lines.push(
-        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
-      );
+      lines.push(`  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
@@ -102,9 +94,7 @@ function generatePlainText(digest: SummarizedDigest): string {
     for (const item of digest.thisMonthLastYear) {
       lines.push(`* ${item.title}`);
       const readTimePart = item.readTime ? `${item.readTime} min read | ` : "";
-      lines.push(
-        `  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`
-      );
+      lines.push(`  ${readTimePart}Saved ${item.daysAgo} days ago | ${item.source}`);
       lines.push(`  ${getKarakeepLink(item.id)}`);
       lines.push(`  ${item.aiSummary}`);
       lines.push("");
@@ -205,10 +195,7 @@ export function renderDigest(digest: SummarizedDigest): {
  */
 function createTransport(): nodemailer.Transporter {
   // Auto-detect secure mode if not explicitly set
-  const secure =
-    config.smtpSecure !== undefined
-      ? config.smtpSecure
-      : config.smtpPort === 465;
+  const secure = config.smtpSecure !== undefined ? config.smtpSecure : config.smtpPort === 465;
 
   return nodemailer.createTransport({
     host: config.smtpHost,
@@ -224,10 +211,7 @@ function createTransport(): nodemailer.Transporter {
 /**
  * Send the digest email
  */
-export async function sendDigest(
-  html: string,
-  plainText: string
-): Promise<string> {
+export async function sendDigest(html: string, plainText: string): Promise<string> {
   const transport = createTransport();
   const recipients = getEmailRecipients();
 

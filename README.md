@@ -1,22 +1,26 @@
 # Karakeep Digest
 
+[![CI](https://github.com/stitcombe/karakeep-digest/actions/workflows/ci.yml/badge.svg)](https://github.com/stitcombe/karakeep-digest/actions/workflows/ci.yml)
+[![Docker](https://github.com/stitcombe/karakeep-digest/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/stitcombe/karakeep-digest/pkgs/container/karakeep-digest)
+
 Weekly AI-powered email digest of your saved bookmarks from [Karakeep](https://github.com/karakeep/karakeep).
 
 ## Features
 
-- **Quick Scan**: Top 5 prioritized items based on age and tags
-- **Buried Treasure**: Items saved 30+ days ago that you haven't read
-- **This Month Last Year**: Historical bookmarks from the same month last year
-- **Tag Roundup**: AI-synthesized summary of your most active tag cluster
-- **Random Pick**: A surprise selection to encourage discovery
+- **Hot Off the Press**: 3 random unread items from the last 30 days
+- **Buried Treasure**: 3 random unread items (30+ days old)
+- **Throwback: One Year Ago**: Up to 3 historical bookmarks from the same month last year
+- **Tag Roundup**: AI-synthesized summary of a randomly selected tag cluster
+- **Random Pick**: A surprise bookmark selection
+- **From the Archives**: A random archived bookmark to resurface
 
-Each item includes an AI-generated summary and "why it matters" insight.
+Each item includes an AI-generated summary.
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - pnpm (or npm/yarn)
 - Karakeep instance with API access
 - Anthropic API key (or local Ollama)
@@ -26,7 +30,7 @@ Each item includes an AI-generated summary and "why it matters" insight.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/karakeep-digest.git
+git clone https://github.com/stitcombe/karakeep-digest.git
 cd karakeep-digest
 
 # Install dependencies
@@ -77,14 +81,27 @@ pnpm build
 pnpm start
 ```
 
-**Docker:**
+**Docker (pre-built image):**
+
+```bash
+# Pull the image
+docker pull ghcr.io/stitcombe/karakeep-digest:latest
+
+# Single run
+docker compose -f docker-compose.image.yml run --rm karakeep-digest
+
+# Daemon mode (scheduled)
+RUN_MODE=daemon docker compose -f docker-compose.image.yml up -d
+```
+
+**Docker (build from source):**
 
 ```bash
 # Single run
 docker compose run --rm karakeep-digest
 
 # Daemon mode (scheduled)
-docker compose up -d
+RUN_MODE=daemon docker compose up -d
 ```
 
 ## Scheduling
@@ -147,6 +164,10 @@ ollama pull llama3
 
 ```
 karakeep-digest/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml              # PR checks (typecheck, build, security)
+│       └── docker-publish.yml  # Build & publish container to ghcr.io
 ├── src/
 │   ├── index.ts         # Entry point, orchestration
 │   ├── karakeep.ts      # Karakeep API client
@@ -160,9 +181,30 @@ karakeep-digest/
 ├── prompts/
 │   ├── single-article.txt    # Individual summary prompt
 │   └── topic-cluster.txt     # Cluster synthesis prompt
-├── docker-compose.yml
+├── docker-compose.yml        # Build from source
+├── docker-compose.image.yml  # Use pre-built image
 ├── Dockerfile
 └── package.json
+```
+
+## Container Images
+
+Pre-built multi-architecture images (amd64/arm64) are available from GitHub Container Registry:
+
+```bash
+# Latest release
+docker pull ghcr.io/stitcombe/karakeep-digest:latest
+
+# Specific version
+docker pull ghcr.io/stitcombe/karakeep-digest:1.0.0
+```
+
+Images are signed with [cosign](https://github.com/sigstore/cosign). Verify signatures:
+
+```bash
+cosign verify ghcr.io/stitcombe/karakeep-digest:latest \
+  --certificate-identity-regexp="https://github.com/stitcombe/karakeep-digest" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
 ```
 
 ## License

@@ -1,10 +1,9 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-
-import { config, getLLMProvider } from "./config.js";
 import { daysAgo, estimateReadTime } from "./categorizer.js";
+import { config, getLLMProvider } from "./config.js";
 import { fetchBookmarkContent } from "./karakeep.js";
 import type {
   ArticleSummaryResponse,
@@ -153,13 +152,8 @@ async function summarizeArticle(
   const promptTemplate = loadPrompt("single-article");
   // Use fetched content first (full article), then fall back to inline content
   const contentText =
-    fetchedContent ||
-    bookmark.content?.htmlContent ||
-    bookmark.content?.text ||
-    "";
-  const content = truncateContent(
-    contentText || bookmark.summary || bookmark.title || ""
-  );
+    fetchedContent || bookmark.content?.htmlContent || bookmark.content?.text || "";
+  const content = truncateContent(contentText || bookmark.summary || bookmark.title || "");
 
   const prompt = promptTemplate
     .replace("{{TITLE}}", bookmark.title || "Untitled")
@@ -169,10 +163,7 @@ async function summarizeArticle(
     const response = await provider.complete(prompt, 300);
     return parseJsonResponse<ArticleSummaryResponse>(response);
   } catch (error) {
-    console.warn(
-      `Failed to summarize article "${bookmark.title}":`,
-      (error as Error).message
-    );
+    console.warn(`Failed to summarize article "${bookmark.title}":`, (error as Error).message);
 
     // Fallback to existing summary or title
     return {
@@ -192,15 +183,12 @@ async function synthesizeCluster(
   const promptTemplate = loadPrompt("topic-cluster");
 
   // Fetch content for all bookmarks
-  const contentResults = await Promise.all(
-    bookmarks.map((b) => fetchBookmarkContent(b))
-  );
+  const contentResults = await Promise.all(bookmarks.map((b) => fetchBookmarkContent(b)));
 
   const articles = bookmarks
     .map((b, index) => {
       const fetchedContent = contentResults[index];
-      const contentText =
-        fetchedContent || b.content?.htmlContent || b.content?.text || "";
+      const contentText = fetchedContent || b.content?.htmlContent || b.content?.text || "";
       return `## ${b.title || "Untitled"}\n${truncateContent(contentText || b.summary || "")}`;
     })
     .join("\n\n---\n\n");
@@ -214,10 +202,7 @@ async function synthesizeCluster(
     const response = await provider.complete(prompt, 500);
     return parseJsonResponse<ClusterSynthesisResponse>(response);
   } catch (error) {
-    console.warn(
-      `Failed to synthesize cluster "${tag}":`,
-      (error as Error).message
-    );
+    console.warn(`Failed to synthesize cluster "${tag}":`, (error as Error).message);
 
     // Fallback synthesis
     return {
@@ -237,10 +222,7 @@ async function toSummarizedBookmark(
 ): Promise<SummarizedBookmark> {
   // Fetch actual content from Karakeep asset first (for both summarization and read time)
   const fetchedContent = await fetchBookmarkContent(bookmark);
-  const rawContent =
-    fetchedContent ||
-    bookmark.content?.htmlContent ||
-    bookmark.content?.text;
+  const rawContent = fetchedContent || bookmark.content?.htmlContent || bookmark.content?.text;
 
   // Generate summary using fetched content
   const summary = await summarizeArticle(provider, bookmark, fetchedContent);
@@ -288,16 +270,12 @@ async function mapWithConcurrency<T, R>(
 /**
  * Summarize all sections of the digest
  */
-export async function summarizeSections(
-  sections: DigestSections
-): Promise<SummarizedDigest> {
+export async function summarizeSections(sections: DigestSections): Promise<SummarizedDigest> {
   console.log("Generating AI summaries...");
   const provider = createProvider();
 
   // Summarize Recently Saved items
-  console.log(
-    `  Summarizing ${sections.recentlySaved.length} Recently Saved items`
-  );
+  console.log(`  Summarizing ${sections.recentlySaved.length} Recently Saved items`);
   const recentlySaved = await mapWithConcurrency(
     sections.recentlySaved,
     (b) => toSummarizedBookmark(provider, b),
@@ -305,9 +283,7 @@ export async function summarizeSections(
   );
 
   // Summarize Buried Treasure items
-  console.log(
-    `  Summarizing ${sections.buriedTreasure.length} Buried Treasure items`
-  );
+  console.log(`  Summarizing ${sections.buriedTreasure.length} Buried Treasure items`);
   const buriedTreasure = await mapWithConcurrency(
     sections.buriedTreasure,
     (b) => toSummarizedBookmark(provider, b),
@@ -315,9 +291,7 @@ export async function summarizeSections(
   );
 
   // Summarize This Month Last Year items
-  console.log(
-    `  Summarizing ${sections.thisMonthLastYear.length} historical items`
-  );
+  console.log(`  Summarizing ${sections.thisMonthLastYear.length} historical items`);
   const thisMonthLastYear = await mapWithConcurrency(
     sections.thisMonthLastYear,
     (b) => toSummarizedBookmark(provider, b),
@@ -361,10 +335,7 @@ export async function summarizeSections(
   let fromTheArchives: SummarizedBookmark | null = null;
   if (sections.fromTheArchives) {
     console.log("  Summarizing archive pick");
-    fromTheArchives = await toSummarizedBookmark(
-      provider,
-      sections.fromTheArchives
-    );
+    fromTheArchives = await toSummarizedBookmark(provider, sections.fromTheArchives);
   }
 
   console.log("AI summarization complete");

@@ -1,9 +1,5 @@
 import { config } from "./config.js";
-import type {
-  Bookmark,
-  KarakeepBookmark,
-  KarakeepBookmarksResponse,
-} from "./types.js";
+import type { Bookmark, KarakeepBookmark, KarakeepBookmarksResponse } from "./types.js";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -25,8 +21,7 @@ function extractDomain(url: string): string {
  */
 function transformBookmark(raw: KarakeepBookmark): Bookmark {
   const url = raw.content?.url || "";
-  const title =
-    raw.title || raw.content?.title || raw.content?.url || "Untitled";
+  const title = raw.title || raw.content?.title || raw.content?.url || "Untitled";
 
   return {
     id: raw.id,
@@ -48,10 +43,7 @@ function transformBookmark(raw: KarakeepBookmark): Bookmark {
 /**
  * Make API request with retry logic
  */
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${config.karakeepUrl}${endpoint}`;
   const headers = {
     Authorization: `Bearer ${config.karakeepApiKey}`,
@@ -80,9 +72,7 @@ async function apiRequest<T>(
 
       if (!response.ok) {
         const body = await response.text();
-        throw new Error(
-          `API error ${response.status}: ${body.slice(0, 200)}`
-        );
+        throw new Error(`API error ${response.status}: ${body.slice(0, 200)}`);
       }
 
       return (await response.json()) as T;
@@ -90,7 +80,7 @@ async function apiRequest<T>(
       lastError = error as Error;
 
       if (attempt < MAX_RETRIES) {
-        const delay = RETRY_DELAY_MS * Math.pow(2, attempt - 1);
+        const delay = RETRY_DELAY_MS * 2 ** (attempt - 1);
         console.warn(
           `Request failed (attempt ${attempt}/${MAX_RETRIES}), retrying in ${delay}ms:`,
           (error as Error).message
@@ -151,9 +141,7 @@ export async function fetchBookmarkContent(bookmark: Bookmark): Promise<string |
 /**
  * Fetch all bookmarks from Karakeep with pagination
  */
-export async function fetchBookmarks(
-  options: FetchBookmarksOptions = {}
-): Promise<Bookmark[]> {
+export async function fetchBookmarks(options: FetchBookmarksOptions = {}): Promise<Bookmark[]> {
   const { archived = false, limit } = options;
   const bookmarks: Bookmark[] = [];
   let cursor: string | null = null;
@@ -193,10 +181,7 @@ export async function fetchBookmarks(
  * Fetch bookmarks created within a date range
  * Used for "This Month Last Year" feature
  */
-export async function fetchBookmarksFromDateRange(
-  start: Date,
-  end: Date
-): Promise<Bookmark[]> {
+export async function fetchBookmarksFromDateRange(start: Date, end: Date): Promise<Bookmark[]> {
   // Karakeep API doesn't support date range filtering directly,
   // so we fetch all and filter client-side
   const allBookmarks = await fetchBookmarks({ archived: false });

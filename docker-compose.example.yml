@@ -1,0 +1,25 @@
+# Use the pre-built image from GitHub Container Registry
+# Usage:
+#   docker compose -f docker-compose.image.yml run --rm karakeep-digest
+#   RUN_MODE=daemon docker compose -f docker-compose.image.yml up -d
+
+services:
+  karakeep-digest:
+    image: ghcr.io/stitcombe/karakeep-digest:latest
+    env_file: .env
+    restart: no
+    environment:
+      - TZ=${TZ:-UTC}
+
+  # Optional: Local LLM with Ollama
+  # Uncomment to use local AI instead of Anthropic
+  # ollama:
+  #   image: ollama/ollama
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+  #   profiles:
+  #     - local-llm
+# volumes:
+#   ollama_data:

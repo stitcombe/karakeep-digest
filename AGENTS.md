@@ -20,6 +20,15 @@ pnpm start
 
 # Type checking only
 pnpm typecheck
+
+# Lint (Biome)
+pnpm lint
+
+# Lint and fix issues
+pnpm lint:fix
+
+# Format code
+pnpm format
 ```
 
 ## Architecture
@@ -33,9 +42,9 @@ pnpm typecheck
 
 ### Digest Sections
 
-- **Recently Saved**: 3 random unread items from last 30 days
-- **Buried Treasure**: 3 oldest unread items (30+ days old)
-- **This Month Last Year**: Up to 3 historical bookmarks from same month previous year
+- **Hot Off the Press**: 3 random unread items from last 30 days
+- **Buried Treasure**: 3 random unread items (30+ days old)
+- **Throwback: One Year Ago**: Up to 3 historical bookmarks from same month last year
 - **Tag Roundup**: Randomly selected tag with 3+ items, includes AI synthesis
 - **Random Pick**: Single random discovery item
 - **From the Archives**: Single random archived bookmark
@@ -89,3 +98,32 @@ import { config } from "./config.js";
 ### Content Filtering
 
 `filterSufficientContent()` in `categorizer.ts` excludes bookmarks with less than 200 characters of content/summary to ensure quality summaries.
+
+## CI/CD
+
+### GitHub Actions Workflows
+
+- **`.github/workflows/ci.yml`** - Runs on PRs and pushes to main
+
+  - Linting (`biome ci`)
+  - Type checking (`pnpm typecheck`)
+  - Build verification (`pnpm build`)
+  - Docker build test (without push)
+  - Security audit (`pnpm audit`)
+
+- **`.github/workflows/docker-publish.yml`** - Runs on releases and manual dispatch
+  - Builds multi-arch images (amd64/arm64)
+  - Pushes to `ghcr.io/stitcombe/karakeep-digest`
+  - Signs images with cosign (keyless)
+  - Generates SBOM and build attestation
+
+### Releasing
+
+```bash
+# Create and push a version tag
+git tag v1.0.0
+git push origin v1.0.0
+
+# Create a GitHub release (triggers container build)
+gh release create v1.0.0 --generate-notes
+```

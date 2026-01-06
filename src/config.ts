@@ -24,9 +24,7 @@ const configSchema = z
     smtpSecure: z
       .enum(["true", "false", ""])
       .optional()
-      .transform((val) =>
-        val === "true" ? true : val === "false" ? false : undefined
-      ),
+      .transform((val) => (val === "true" ? true : val === "false" ? false : undefined)),
 
     // Email addresses
     emailFrom: z.string().email(),

@@ -1,7 +1,6 @@
 import cron from "node-cron";
-
-import { config } from "./config.js";
 import { categorize, filterSufficientContent } from "./categorizer.js";
+import { config } from "./config.js";
 import { renderDigest, sendDigest, verifySmtpConnection } from "./email.js";
 import { fetchArchivedBookmarks, fetchBookmarks, fetchThisMonthLastYear } from "./karakeep.js";
 import { summarizeSections } from "./summarizer.js";
@@ -29,9 +28,7 @@ async function generateAndSendDigest(): Promise<void> {
     // 2. Fetch historical bookmarks for "This Month Last Year"
     console.log("Fetching historical bookmarks...");
     const lastYearBookmarks = await fetchThisMonthLastYear();
-    console.log(
-      `Found ${lastYearBookmarks.length} bookmarks from this month last year`
-    );
+    console.log(`Found ${lastYearBookmarks.length} bookmarks from this month last year`);
     const validLastYear = filterSufficientContent(lastYearBookmarks);
     console.log(`  (${validLastYear.length} with sufficient content)`);
 
@@ -49,9 +46,7 @@ async function generateAndSendDigest(): Promise<void> {
     console.log("Sections created:");
     console.log(`  - Recently Saved: ${sections.recentlySaved.length} items`);
     console.log(`  - Buried Treasure: ${sections.buriedTreasure.length} items`);
-    console.log(
-      `  - This Month Last Year: ${sections.thisMonthLastYear.length} items`
-    );
+    console.log(`  - This Month Last Year: ${sections.thisMonthLastYear.length} items`);
     console.log(
       `  - Tag Roundup: ${sections.tagRoundup ? `${sections.tagRoundup.bookmarks.length} items (${sections.tagRoundup.tag})` : "none"}`
     );

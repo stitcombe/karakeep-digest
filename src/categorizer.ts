@@ -15,8 +15,7 @@ const RECENTLY_SAVED_DAYS = 30;
  * Higher score = higher priority in digest
  */
 function calculatePriorityScore(bookmark: Bookmark, now: Date): number {
-  const ageInDays =
-    (now.getTime() - bookmark.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+  const ageInDays = (now.getTime() - bookmark.createdAt.getTime()) / (1000 * 60 * 60 * 24);
 
   // Base score from age (logarithmic to prevent explosion)
   let score = Math.log(ageInDays + 1) * 10;
@@ -30,8 +29,7 @@ function calculatePriorityScore(bookmark: Bookmark, now: Date): number {
   }
 
   // Boost if has full content (more to summarize)
-  const contentText =
-    bookmark.content?.htmlContent || bookmark.content?.text || "";
+  const contentText = bookmark.content?.htmlContent || bookmark.content?.text || "";
   if (contentText.length > 500) {
     score += 5;
   }
@@ -47,7 +45,7 @@ function calculatePriorityScore(bookmark: Bookmark, now: Date): number {
 /**
  * Get scored and sorted bookmarks
  */
-function getScoreBookmarks(bookmarks: Bookmark[], now: Date): ScoredBookmark[] {
+function _getScoreBookmarks(bookmarks: Bookmark[], now: Date): ScoredBookmark[] {
   return bookmarks
     .map((b) => ({
       ...b,
@@ -128,12 +126,10 @@ export function categorize(
     RECENTLY_SAVED_COUNT,
     now
   );
-  recentlySaved.forEach((b) => usedIds.add(b.id));
+  for (const b of recentlySaved) usedIds.add(b.id);
 
   // Buried Treasure: 30+ days old, still unread
-  const thirtyDaysAgo = new Date(
-    now.getTime() - BURIED_TREASURE_DAYS * 24 * 60 * 60 * 1000
-  );
+  const thirtyDaysAgo = new Date(now.getTime() - BURIED_TREASURE_DAYS * 24 * 60 * 60 * 1000);
 
   const buriedCandidates = validBookmarks.filter(
     (b) => !usedIds.has(b.id) && b.createdAt < thirtyDaysAgo
@@ -142,31 +138,27 @@ export function categorize(
     .sort(() => Math.random() - 0.5)
     .slice(0, BURIED_TREASURE_COUNT);
 
-  buriedTreasure.forEach((b) => usedIds.add(b.id));
+  for (const b of buriedTreasure) usedIds.add(b.id);
 
   // This Month Last Year: random selection from both unread and archived last year bookmarks
-  const lastYearCandidates = [...validLastYear, ...validArchived].filter(
-    (b) => !usedIds.has(b.id)
-  );
+  const lastYearCandidates = [...validLastYear, ...validArchived].filter((b) => !usedIds.has(b.id));
   const thisMonthLastYear = [...lastYearCandidates]
     .sort(() => Math.random() - 0.5)
     .slice(0, THIS_MONTH_LAST_YEAR_COUNT);
-  thisMonthLastYear.forEach((b) => usedIds.add(b.id));
+  for (const b of thisMonthLastYear) usedIds.add(b.id);
 
   // Tag Roundup: Most popular tag with 3+ items
   const tagMap = buildTagFrequencyMap(validBookmarks);
   const tagRoundup = findTopTag(tagMap, usedIds);
 
   if (tagRoundup) {
-    tagRoundup.bookmarks.forEach((b) => usedIds.add(b.id));
+    for (const b of tagRoundup.bookmarks) usedIds.add(b.id);
   }
 
   // Random Pick: Single random selection from remaining
   const remaining = validBookmarks.filter((b) => !usedIds.has(b.id));
   const randomPick =
-    remaining.length > 0
-      ? remaining[Math.floor(Math.random() * remaining.length)]
-      : null;
+    remaining.length > 0 ? remaining[Math.floor(Math.random() * remaining.length)] : null;
 
   // From the Archives: Single random selection from archived items (excluding already used)
   const availableArchived = validArchived.filter((b) => !usedIds.has(b.id));
@@ -251,9 +243,7 @@ export function filterSufficientContent(bookmarks: Bookmark[]): Bookmark[] {
     const contentLength = contentText.length;
     const summaryLength = (b.summary || "").length;
     // Accept if either content or summary has sufficient length
-    return (
-      contentLength >= MIN_CONTENT_LENGTH || summaryLength >= MIN_CONTENT_LENGTH
-    );
+    return contentLength >= MIN_CONTENT_LENGTH || summaryLength >= MIN_CONTENT_LENGTH;
   });
 }
 

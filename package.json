@@ -1,7 +1,7 @@
 {
   "name": "karakeep-digest",
   "version": "1.0.0",
-  "description": "Weekly AI-powered email digest of your saved bookmarks",
+  "description": "Weekly LLM-powered email digest of your Karakeep bookmarks",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -18,24 +18,25 @@
     "ai",
     "summary"
   ],
-  "author": "",
+  "author": "Stephen Titcombe",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.52.0",
-    "dotenv": "^16.4.5",
+    "@anthropic-ai/sdk": "^0.71.2",
+    "dotenv": "^17.2.3",
     "handlebars": "^4.7.8",
-    "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.16",
-    "zod": "^3.24.1"
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.12",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@types/node": "^25.0.3",
     "@types/node-cron": "^3.0.11",
-    "@types/nodemailer": "^6.4.17",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "@types/nodemailer": "^7.0.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.27.0"
 }

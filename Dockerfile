@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -18,9 +18,12 @@ COPY . .
 RUN pnpm build
 
 # Production image
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
+
+# Install tzdata for timezone support
+RUN apk add --no-cache tzdata
 
 RUN corepack enable
 
@@ -38,6 +41,7 @@ COPY --from=builder /app/prompts ./prompts
 # Set default environment
 ENV NODE_ENV=production
 ENV RUN_MODE=cli
+ENV TZ=UTC
 
 # Run the digest
 CMD ["node", "dist/index.js"]

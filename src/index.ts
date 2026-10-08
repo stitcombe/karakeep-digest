@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import cron from "node-cron";
 import { categorize, filterSufficientContent } from "./categorizer.js";
 import { config } from "./config.js";
@@ -5,6 +8,11 @@ import { renderDigest, sendDigest, verifySmtpConnection } from "./email.js";
 import { fetchArchivedBookmarks, fetchBookmarks, fetchThisMonthLastYear } from "./karakeep.js";
 import { summarizeSections } from "./summarizer.js";
 import { assertThemeExists } from "./themes.js";
+
+// package.json sits one level above both src/ (dev) and dist/ (build)
+const { version } = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf-8")
+) as { version: string };
 
 /**
  * Main digest generation and sending flow
@@ -134,7 +142,7 @@ function runDaemon(): void {
  * Entry point
  */
 function main(): void {
-  console.log("Karakeep Digest v1.0.0");
+  console.log(`Karakeep Digest v${version}`);
   console.log(`Mode: ${config.runMode}`);
   console.log(`Email theme: ${config.emailTheme}`);
   console.log("");

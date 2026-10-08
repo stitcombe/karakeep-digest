@@ -45,7 +45,7 @@ class AnthropicProvider implements LLMProvider {
 
   async complete(prompt: string, maxTokens: number): Promise<string> {
     const response = await this.client.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-haiku-5-5",
       max_tokens: maxTokens,
       messages: [{ role: "user", content: prompt }],
     });

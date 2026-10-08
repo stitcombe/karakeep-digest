@@ -53,7 +53,7 @@ pnpm format
 
 The `LLMProvider` interface in `summarizer.ts` allows switching between:
 
-- `AnthropicProvider` - Uses Claude API (claude-sonnet-4-20250514)
+- `AnthropicProvider` - Uses Claude API (claude-haiku-5-5)
 - `OllamaProvider` - Uses local Ollama instance
 
 Provider selection is automatic based on which API key/URL is configured.

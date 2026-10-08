@@ -99,6 +99,10 @@ import { config } from "./config.js";
 
 `filterSufficientContent()` in `categorizer.ts` excludes bookmarks with less than 200 characters of content/summary to ensure quality summaries.
 
+## Pull Requests
+
+PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/), e.g. `feat(summarizer): add Ollama retry`, `fix: handle empty tag list`, `chore(deps): upgrade dependencies`.
+
 ## CI/CD
 
 ### GitHub Actions Workflows

@@ -53,7 +53,7 @@ pnpm format
 
 The `LLMProvider` interface in `summarizer.ts` allows switching between:
 
-- `AnthropicProvider` - Uses Claude API (claude-sonnet-4-20250514)
+- `AnthropicProvider` - Uses Claude API (claude-haiku-5-5)
 - `OllamaProvider` - Uses local Ollama instance
 
 Provider selection is automatic based on which API key/URL is configured.
@@ -98,6 +98,10 @@ import { config } from "./config.js";
 ### Content Filtering
 
 `filterSufficientContent()` in `categorizer.ts` excludes bookmarks with less than 200 characters of content/summary to ensure quality summaries.
+
+## Pull Requests
+
+PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/), e.g. `feat(summarizer): add Ollama retry`, `fix: handle empty tag list`, `chore(deps): upgrade dependencies`.
 
 ## CI/CD
 

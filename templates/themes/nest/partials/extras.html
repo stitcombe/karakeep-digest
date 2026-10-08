@@ -1,0 +1,18 @@
+<div class="nd-section">
+  {{> section-header eyebrow="Also this week" title="Something different"}}
+  <table role="presentation" class="nd-grid" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      {{#if randomPick}}
+      <td class="nd-cell nd-stack {{#if fromTheArchives}}nd-cell-first{{else}}nd-cell-only{{/if}}">
+        {{#with randomPick}}{{> cell eyebrow="Random pick"}}{{/with}}
+      </td>
+      {{#if fromTheArchives}}<td class="nd-gap nd-stack">&nbsp;</td>{{/if}}
+      {{/if}}
+      {{#if fromTheArchives}}
+      <td class="nd-cell nd-stack {{#if randomPick}}nd-cell-last{{else}}nd-cell-only{{/if}}">
+        {{#with fromTheArchives}}{{> cell eyebrow="From the archives"}}{{/with}}
+      </td>
+      {{/if}}
+    </tr>
+  </table>
+</div>

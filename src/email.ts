@@ -1,14 +1,8 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import Handlebars from "handlebars";
 import nodemailer from "nodemailer";
 
 import { config, getEmailRecipients } from "./config.js";
-import type { SummarizedDigest } from "./types.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = join(__dirname, "..", "templates");
+import { loadTheme } from "./themes.js";
+import type { SummarizedBookmark, SummarizedDigest } from "./types.js";
 
 /**
  * Format date as "January 2, 2026"
@@ -22,19 +16,28 @@ function formatDate(date: Date): string {
 }
 
 /**
- * Load and compile Handlebars template
+ * ISO 8601 week number (1-53)
  */
-function loadTemplate(): HandlebarsTemplateDelegate {
-  const templatePath = join(TEMPLATES_DIR, "digest.html");
-  const templateSource = readFileSync(templatePath, "utf-8");
+function isoWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
 
-  // Register helper to generate Karakeep deep link URLs
-  const baseUrl = config.karakeepUrl;
-  Handlebars.registerHelper("karakeepLink", (bookmarkId: string) => {
-    return `${baseUrl}/reader/${bookmarkId}`;
-  });
-
-  return Handlebars.compile(templateSource);
+/**
+ * Every bookmark that appears in the digest, across all sections
+ */
+function allPicks(digest: SummarizedDigest): SummarizedBookmark[] {
+  return [
+    ...digest.recentlySaved,
+    ...digest.buriedTreasure,
+    ...digest.thisMonthLastYear,
+    ...(digest.tagRoundup?.bookmarks ?? []),
+    ...(digest.randomPick ? [digest.randomPick] : []),
+    ...(digest.fromTheArchives ? [digest.fromTheArchives] : []),
+  ];
 }
 
 /**
@@ -172,12 +175,17 @@ export function renderDigest(digest: SummarizedDigest): {
   html: string;
   plainText: string;
 } {
-  const template = loadTemplate();
+  const template = loadTheme(config.emailTheme, config.karakeepUrl);
+  const picks = allPicks(digest);
 
+  // Every theme receives the same context; see templates/themes/README.md
   const context = {
     ...digest,
     totalUnread: digest.stats.totalUnread,
     formattedDate: formatDate(digest.stats.generatedAt),
+    weekNumber: isoWeek(digest.stats.generatedAt),
+    pickCount: picks.length,
+    totalReadMinutes: picks.reduce((sum, item) => sum + item.readTime, 0),
     karakeepUrl: config.karakeepUrl,
   };
 

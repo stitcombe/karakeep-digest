@@ -38,7 +38,7 @@ pnpm format
 1. **Fetch** (`karakeep.ts`) - Retrieves bookmarks from Karakeep API with pagination and retry logic
 2. **Categorize** (`categorizer.ts`) - Sorts bookmarks into digest sections using priority scoring
 3. **Summarize** (`summarizer.ts`) - Generates AI summaries via Anthropic Claude or local Ollama
-4. **Render & Send** (`email.ts`) - Renders Handlebars template and sends via SMTP
+4. **Render & Send** (`email.ts`) - Renders the selected theme's Handlebars template and sends via SMTP
 
 ### Digest Sections
 
@@ -64,7 +64,8 @@ Provider selection is automatic based on which API key/URL is configured.
 - `src/types.ts` - All TypeScript interfaces
 - `src/config.ts` - Environment variable loading with Zod validation
 - `prompts/*.txt` - LLM prompt templates with `{{PLACEHOLDER}}` substitution
-- `templates/digest.html` - Handlebars email template
+- `src/themes.ts` - Finds and compiles email themes (`templates/themes/<name>/digest.html` + optional `partials/`)
+- `templates/themes/` - One folder per email theme; `README.md` there documents the template context and helpers
 
 ## Configuration
 
@@ -80,6 +81,7 @@ Optional:
 - `RUN_MODE=daemon` - Run as scheduled service instead of one-shot
 - `CRON_SCHEDULE` - Cron expression for daemon mode (default: `0 8 * * 0`)
 - `PRIORITY_TAGS` - Comma-separated tags to boost in scoring
+- `EMAIL_THEME` - Email theme folder name (default: `base`; also `nest`)
 
 ## Code Patterns
 
@@ -94,6 +96,13 @@ import { config } from "./config.js";
 ### Concurrency Control
 
 `mapWithConcurrency()` in `summarizer.ts` limits parallel LLM requests to prevent rate limiting (default: 5 concurrent).
+
+### Email Themes
+
+Each theme gets its own Handlebars environment (`Handlebars.create()`) with the shared helpers (`karakeepLink`,
+`plural`) and its own partials. New context fields go in `renderDigest()` in `email.ts` and must be documented in
+`templates/themes/README.md`. The plain-text email is shared by all themes. Templates must stay email-safe:
+literal colours, tables for columns, no CSS variables, flexbox or grid.
 
 ### Content Filtering
 

@@ -1,5 +1,6 @@
 import { config as loadEnv } from "dotenv";
 import { z } from "zod";
+import { DEFAULT_THEME } from "./themes.js";
 
 // Load environment variables
 loadEnv();
@@ -35,6 +36,12 @@ const configSchema = z
     cronSchedule: z.string().default("0 8 * * 0"), // Sunday at 8am
     runMode: z.enum(["cli", "daemon"]).default("cli"),
 
+    // Email theme: a folder name in templates/themes
+    emailTheme: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9-]*$/, "must be a lowercase theme folder name, e.g. base or nest")
+      .default(DEFAULT_THEME),
+
     // Debug
     debugLogs: z
       .enum(["true", "false", ""])
@@ -62,6 +69,7 @@ function loadConfig() {
     priorityTags: process.env.PRIORITY_TAGS,
     cronSchedule: process.env.CRON_SCHEDULE,
     runMode: process.env.RUN_MODE,
+    emailTheme: process.env.EMAIL_THEME || undefined,
     debugLogs: process.env.DEBUG_LOGS,
   });
 

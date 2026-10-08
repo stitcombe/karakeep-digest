@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
+    <title>Your Weekly Karakeep Digest</title>
+    <!-- Nest DS brand fonts. Apple Mail and iOS Mail load them; other clients use the fallbacks. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      /* Nest theme: colour and type values copied from loonlet-labs/nest-ds src/styles/tokens.css.
+         Email clients don't support CSS variables, so every colour is a literal and the dark
+         palette re-declares the colour classes below. No shadows or gradients (brand rule). */
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        -webkit-text-size-adjust: 100%;
+      }
+      .nd-outer {
+        background-color: #ffffff;
+      }
+      .nd-wrap {
+        width: 600px;
+        max-width: 600px;
+      }
+      .nd-pad {
+        padding: 36px 32px 32px;
+        font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Helvetica, Arial, sans-serif;
+        color: #0a0a0a;
+      }
+      .nd-mono,
+      .nd-eyebrow,
+      .nd-fig,
+      .nd-src,
+      .nd-badge {
+        font-family: "JetBrains Mono", SFMono-Regular, Menlo, Consolas, "Courier New",
+          monospace;
+      }
+
+      /* Colour roles */
+      .nd-ink {
+        color: #0a0a0a;
+      }
+      .nd-body-text {
+        color: #3a3a3a;
+      }
+      .nd-muted {
+        color: #6e6e6e;
+      }
+      .nd-link {
+        color: #3c5b6f;
+        text-decoration: none;
+      }
+      .nd-line {
+        border-color: #e6e6e6;
+      }
+      .nd-rule {
+        border-color: #0a0a0a;
+      }
+
+      /* Eyebrow: 11px mono uppercase, tracked +14% */
+      .nd-eyebrow {
+        font-size: 11px;
+        line-height: 1.4;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      /* Header: 2px Ink rule under the title */
+      .nd-head {
+        padding-bottom: 16px;
+        border-bottom: 2px solid #0a0a0a;
+      }
+      .nd-h1 {
+        margin: 8px 0 0;
+        font-size: 26px;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+      }
+
+      /* Metric: 3px Ink rule over a mono figure, label, source */
+      .nd-metrics {
+        margin-top: 32px;
+      }
+      .nd-metric {
+        width: 31%;
+        vertical-align: top;
+        border-top: 3px solid #0a0a0a;
+        padding: 16px 0 0;
+      }
+      .nd-metric-gap {
+        width: 24px;
+        font-size: 1px;
+        line-height: 1px;
+      }
+      .nd-fig {
+        font-size: 36px;
+        font-weight: 500;
+        line-height: 0.9;
+        letter-spacing: -0.04em;
+      }
+      .nd-fig-accent {
+        color: #3c5b6f;
+      }
+      .nd-label {
+        margin-top: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+      .nd-src {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      /* Sections */
+      .nd-section {
+        margin-top: 40px;
+      }
+      .nd-h2 {
+        margin: 4px 0 0;
+        font-size: 20px;
+        line-height: 1.35;
+        letter-spacing: -0.015em;
+        font-weight: 600;
+      }
+      .nd-rows {
+        margin-top: 12px;
+        border-top: 1px solid #e6e6e6;
+      }
+
+      /* Rows: rules between rows, never boxes around them */
+      .nd-row {
+        padding: 16px 0;
+        border-bottom: 1px solid #e6e6e6;
+      }
+      .nd-title {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+      }
+      .nd-summary {
+        margin: 6px 0 0;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+      .nd-meta {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 20px;
+      }
+      .nd-meta-item {
+        margin-right: 12px;
+      }
+
+      /* Badge: mono label on a state surface, standard hairline border */
+      .nd-badge {
+        display: inline-block;
+        margin-right: 12px;
+        padding: 0 8px;
+        font-size: 12px;
+        line-height: 20px;
+        border: 1px solid #e6e6e6;
+        border-radius: 5px;
+      }
+      .nd-badge-warn {
+        background-color: #f7f5f0;
+        color: #8a6a00;
+      }
+      .nd-badge-accent {
+        background-color: #eceff1;
+        color: #2f4757;
+        font-size: 14px;
+        vertical-align: 2px;
+      }
+
+      /* Tag roundup: tinted card */
+      .nd-card {
+        margin-top: 12px;
+        padding: 24px;
+        background-color: #eceff1;
+        border: 1px solid #e6e6e6;
+        border-radius: 12px;
+      }
+      .nd-overview {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.65;
+      }
+      .nd-insights {
+        margin: 14px 0 0;
+        padding-left: 18px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .nd-insights li {
+        margin-bottom: 8px;
+      }
+      .nd-standout {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #e6e6e6;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .nd-standout p {
+        margin: 6px 0 0;
+      }
+      .nd-compact {
+        margin-top: 4px;
+      }
+      .nd-compact td {
+        padding: 12px 0;
+        border-bottom: 1px solid #e6e6e6;
+        vertical-align: top;
+      }
+      .nd-compact .nd-title {
+        font-size: 15px;
+      }
+      .nd-compact-meta {
+        padding-left: 14px !important;
+        text-align: right;
+        white-space: nowrap;
+        font-size: 12px;
+        line-height: 21px;
+      }
+
+      /* Card grid: cells on a hairline ground */
+      .nd-grid {
+        margin-top: 12px;
+        border: 1px solid #e6e6e6;
+        border-radius: 12px;
+        background-color: #e6e6e6;
+      }
+      .nd-cell {
+        width: 50%;
+        padding: 20px;
+        vertical-align: top;
+        background-color: #fafafa;
+      }
+      .nd-cell-first {
+        border-radius: 11px 0 0 11px;
+      }
+      .nd-cell-last {
+        border-radius: 0 11px 11px 0;
+      }
+      .nd-cell-only {
+        width: 100%;
+        border-radius: 11px;
+      }
+      .nd-cell .nd-title {
+        margin-top: 8px;
+      }
+      .nd-gap {
+        width: 1px;
+        padding: 0;
+        font-size: 1px;
+        line-height: 1px;
+        background-color: #e6e6e6;
+      }
+
+      /* Footer: 2px Ink rule above, one Ink button */
+      .nd-foot {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px solid #0a0a0a;
+      }
+      .nd-btn-cell {
+        border-radius: 6px;
+        background-color: #0a0a0a;
+      }
+      .nd-btn {
+        display: inline-block;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+      }
+      .nd-foot-note {
+        margin: 16px 0 0;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 620px) {
+        .nd-wrap {
+          width: 100% !important;
+        }
+        .nd-pad {
+          padding: 24px 16px !important;
+        }
+        .nd-h1 {
+          font-size: 22px !important;
+        }
+        .nd-fig {
+          font-size: 26px !important;
+        }
+        .nd-label {
+          font-size: 13px !important;
+        }
+        .nd-src {
+          display: none !important;
+        }
+        .nd-card {
+          padding: 18px 16px !important;
+        }
+        .nd-stack {
+          display: block !important;
+          width: auto !important;
+        }
+        .nd-metric-gap {
+          width: 12px !important;
+        }
+        .nd-cell-first {
+          border-radius: 11px 11px 0 0 !important;
+        }
+        .nd-cell-last {
+          border-radius: 0 0 11px 11px !important;
+        }
+        .nd-gap {
+          display: block !important;
+          width: auto !important;
+          height: 1px !important;
+        }
+        .nd-compact-meta {
+          padding-left: 0 !important;
+          padding-top: 0 !important;
+          text-align: left !important;
+          white-space: normal !important;
+        }
+        .nd-compact-title {
+          padding-bottom: 2px !important;
+          border-bottom: none !important;
+        }
+      }
+
+      /* Dark mode: Nest DS full inversion to Ink. State colours never sit on Ink, so the
+         badges and the accent figure drop to neutral. */
+      @media (prefers-color-scheme: dark) {
+        body,
+        .nd-outer {
+          background-color: #0a0a0a !important;
+        }
+        .nd-pad,
+        .nd-ink {
+          color: #ffffff !important;
+        }
+        .nd-body-text {
+          color: #a0a0a0 !important;
+        }
+        .nd-muted {
+          color: #8a8a8a !important;
+        }
+        .nd-link,
+        .nd-fig-accent {
+          color: #ffffff !important;
+        }
+        .nd-line,
+        .nd-rows,
+        .nd-row,
+        .nd-badge,
+        .nd-card,
+        .nd-standout,
+        .nd-compact td,
+        .nd-grid {
+          border-color: #242424 !important;
+        }
+        .nd-head,
+        .nd-metric,
+        .nd-foot {
+          border-color: #ffffff !important;
+        }
+        .nd-badge-warn,
+        .nd-badge-accent {
+          background-color: #242424 !important;
+          color: #ffffff !important;
+        }
+        .nd-card,
+        .nd-cell {
+          background-color: #1c1c1c !important;
+        }
+        .nd-grid,
+        .nd-gap {
+          background-color: #242424 !important;
+        }
+        .nd-btn-cell {
+          background-color: #ffffff !important;
+        }
+        .nd-btn {
+          color: #0a0a0a !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <table role="presentation" class="nd-outer" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" class="nd-wrap" width="600" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td class="nd-pad">
+                <div class="nd-head">
+                  <div class="nd-eyebrow nd-muted">Karakeep Digest &middot; Week {{weekNumber}}</div>
+                  <h1 class="nd-h1 nd-ink">Your weekly reading, {{formattedDate}}</h1>
+                </div>
+
+                <table role="presentation" class="nd-metrics" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td class="nd-metric">
+                      <div class="nd-fig nd-ink">{{totalUnread}}</div>
+                      <div class="nd-label nd-ink">Unread saves</div>
+                      <div class="nd-src nd-muted">In Karakeep today</div>
+                    </td>
+                    <td class="nd-metric-gap">&nbsp;</td>
+                    <td class="nd-metric">
+                      <div class="nd-fig nd-ink">{{pickCount}}</div>
+                      <div class="nd-label nd-ink">Picks this week</div>
+                      <div class="nd-src nd-muted">Across this digest</div>
+                    </td>
+                    <td class="nd-metric-gap">&nbsp;</td>
+                    <td class="nd-metric">
+                      <div class="nd-fig nd-fig-accent">{{totalReadMinutes}}</div>
+                      <div class="nd-label nd-ink">Minutes of reading</div>
+                      <div class="nd-src nd-muted">Estimated from word count</div>
+                    </td>
+                  </tr>
+                </table>
+
+                {{#if recentlySaved.length}}
+                <div class="nd-section">
+                  {{> section-header eyebrow="Last 30 days" title="Hot off the press"}}
+                  <div class="nd-rows">
+                    {{#each recentlySaved}}{{> item}}{{/each}}
+                  </div>
+                </div>
+                {{/if}}
+
+                {{#if buriedTreasure.length}}
+                <div class="nd-section">
+                  {{> section-header eyebrow="Saved 30+ days ago" title="Buried treasure"}}
+                  <div class="nd-rows">
+                    {{#each buriedTreasure}}{{> item aged=true}}{{/each}}
+                  </div>
+                </div>
+                {{/if}}
+
+                {{#if thisMonthLastYear.length}}
+                <div class="nd-section">
+                  {{> section-header eyebrow="This month last year" title="Throwback: one year ago"}}
+                  <div class="nd-rows">
+                    {{#each thisMonthLastYear}}{{> item}}{{/each}}
+                  </div>
+                </div>
+                {{/if}}
+
+                {{#if tagRoundup}}
+                <div class="nd-section">
+                  <div class="nd-eyebrow nd-muted">Tag roundup</div>
+                  <h2 class="nd-h2 nd-ink">
+                    What you saved under
+                    <span class="nd-badge nd-badge-accent">{{tagRoundup.tag}}</span>
+                  </h2>
+                  <div class="nd-card">
+                    <p class="nd-overview nd-ink">{{tagRoundup.synthesis.overview}}</p>
+                    <ul class="nd-insights nd-body-text">
+                      {{#each tagRoundup.synthesis.keyInsights}}
+                      <li>{{this}}</li>
+                      {{/each}}
+                    </ul>
+                    <div class="nd-standout nd-body-text">
+                      <div class="nd-eyebrow nd-muted">Read first</div>
+                      <p>{{tagRoundup.synthesis.standout}}</p>
+                    </div>
+                  </div>
+                  <table role="presentation" class="nd-compact" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    {{#each tagRoundup.bookmarks}}
+                    <tr>
+                      <td class="nd-stack nd-compact-title">
+                        <a class="nd-title nd-ink" href="{{karakeepLink id}}">{{title}}</a>
+                      </td>
+                      <td class="nd-stack nd-compact-meta nd-mono nd-muted">
+                        {{#if readTime}}{{readTime}} min &middot; {{/if}}{{daysAgo}}d &middot;
+                        <a class="nd-link" href="{{url}}">{{source}}</a>
+                      </td>
+                    </tr>
+                    {{/each}}
+                  </table>
+                </div>
+                {{/if}}
+
+                {{#if randomPick}}{{> extras}}{{else if fromTheArchives}}{{> extras}}{{/if}}
+
+                <div class="nd-foot">
+                  {{#if karakeepUrl}}
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td class="nd-btn-cell" bgcolor="#0A0A0A">
+                        <a class="nd-btn" href="{{karakeepUrl}}">Open your reading list</a>
+                      </td>
+                    </tr>
+                  </table>
+                  {{/if}}
+                  <p class="nd-foot-note nd-mono nd-muted">
+                    Sent by
+                    <a class="nd-link" href="https://github.com/stitcombe/karakeep-digest">Karakeep Digest&nbsp;&#8599;</a>
+                    from your saved bookmarks.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -140,6 +140,17 @@ Boost certain tags in the Quick Scan section:
 PRIORITY_TAGS=important,work,reference
 ```
 
+### Email Theme
+
+Choose how the email looks. Each theme is a folder in `templates/themes/`:
+
+```bash
+EMAIL_THEME=base   # default: the original styling
+EMAIL_THEME=nest   # Loonlet Labs Nest DS brand, with dark mode
+```
+
+See [`templates/themes/README.md`](templates/themes/README.md) to add your own theme.
+
 ### Using Local LLM (Ollama)
 
 Instead of Anthropic, use a local Ollama instance:
@@ -174,10 +185,14 @@ karakeep-digest/
 │   ├── categorizer.ts   # Section logic, scoring
 │   ├── summarizer.ts    # LLM summarization
 │   ├── email.ts         # Email rendering, sending
+│   ├── themes.ts        # Email theme discovery and loading
 │   ├── config.ts        # Configuration loading
 │   └── types.ts         # TypeScript interfaces
 ├── templates/
-│   └── digest.html      # Handlebars email template
+│   └── themes/
+│       ├── README.md    # How to write a theme
+│       ├── base/        # Default theme (digest.html)
+│       └── nest/        # Nest DS theme (digest.html + partials/)
 ├── prompts/
 │   ├── single-article.txt    # Individual summary prompt
 │   └── topic-cluster.txt     # Cluster synthesis prompt

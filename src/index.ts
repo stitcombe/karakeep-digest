@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { renderDigest, sendDigest, verifySmtpConnection } from "./email.js";
 import { fetchArchivedBookmarks, fetchBookmarks, fetchThisMonthLastYear } from "./karakeep.js";
 import { summarizeSections } from "./summarizer.js";
+import { assertThemeExists } from "./themes.js";
 
 /**
  * Main digest generation and sending flow
@@ -135,7 +136,16 @@ function runDaemon(): void {
 function main(): void {
   console.log("Karakeep Digest v1.0.0");
   console.log(`Mode: ${config.runMode}`);
+  console.log(`Email theme: ${config.emailTheme}`);
   console.log("");
+
+  // Fail at startup, not at the first scheduled send
+  try {
+    assertThemeExists(config.emailTheme);
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+  }
 
   if (config.runMode === "daemon") {
     runDaemon();

@@ -193,7 +193,7 @@ export function renderDigest(digest: SummarizedDigest): {
  * - Port 465: implicit TLS (secure: true)
  * - Port 587/25: STARTTLS (secure: false, nodemailer upgrades automatically)
  */
-function createTransport(): nodemailer.Transporter {
+function createTransport() {
   // Auto-detect secure mode if not explicitly set
   const secure = config.smtpSecure !== undefined ? config.smtpSecure : config.smtpPort === 465;
 

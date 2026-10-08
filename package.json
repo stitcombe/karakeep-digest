@@ -1,6 +1,6 @@
 {
   "name": "karakeep-digest",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Weekly LLM-powered email digest of your Karakeep bookmarks",
   "type": "module",
   "main": "dist/index.js",
